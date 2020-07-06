@@ -45,6 +45,18 @@ class TransactionConfigurator {
         return transaction.gasLimit == .none
     }
 
+    private var gasLimitIsDefault: Bool {
+        return transaction.gasLimit == GasLimitConfiguration.defaultGasLimit
+    }
+
+    private var gasPriceIsDefault: Bool {
+        return transaction.gasPrice == GasPriceConfiguration.defaultPrice
+    }
+
+    private var gasPriceNotSet: Bool {
+        return transaction.gasPrice == .none
+    }
+
     let transaction: UnconfirmedTransaction
 
     var configurationUpdate: Subscribable<TransactionConfiguration> = Subscribable(nil)
@@ -155,14 +167,20 @@ class TransactionConfigurator {
         }
     }
 
-// swiftlint:disable function_body_length
+    private func setGasValuesIfNotSetOrDefault() {
+        if gasLimitNotSet || gasLimitIsDefault {
+            estimateGasLimit()
+        }
+        if gasPriceIsDefault || gasPriceNotSet {
+            estimateGasPrice()
+        }
+    }
+
+    // swiftlint:disable function_body_length
     func load(completion: @escaping (ResultResult<Void, AnyError>.t) -> Void) {
+        setGasValuesIfNotSetOrDefault()
         switch transaction.transferType {
         case .dapp:
-            if gasLimitNotSet {
-                estimateGasLimit()
-            }
-            estimateGasPrice()
             configuration = TransactionConfiguration(
                     gasPrice: calculatedGasPrice,
                     gasLimit: GasLimitConfiguration.maxGasLimit,
@@ -180,16 +198,13 @@ class TransactionConfigurator {
             completion(.success(()))
         case .ERC20Token:
             do {
-                if gasLimitNotSet {
-                    estimateGasLimit()
-                }
                 let function = Function(name: "transfer", parameters: [ABIType.address, ABIType.uint(bits: 256)])
                 //Note: be careful here with the BigUInt and BigInt, the type needs to be exact
                 let parameters: [Any] = [Address(address: transaction.to!), BigUInt(transaction.value)]
                 let encoder = ABIEncoder()
                 try encoder.encode(function: function, arguments: parameters)
-                self.configuration = TransactionConfiguration(
-                        gasPrice: self.calculatedGasPrice,
+                configuration = TransactionConfiguration(
+                        gasPrice: calculatedGasPrice,
                         gasLimit: GasLimitConfiguration.maxGasLimit,
                         data: encoder.data
                 )
@@ -199,9 +214,6 @@ class TransactionConfigurator {
             }
         case .ERC875Token(let token):
             do {
-                if gasLimitNotSet {
-                    estimateGasLimit()
-                }
                 let parameters: [Any] = [TrustKeystore.Address(address: transaction.to!), transaction.indices!.map({ BigUInt($0) })]
                 let arrayType: ABIType
                 if token.contractAddress.isLegacy875Contract {
@@ -216,8 +228,8 @@ class TransactionConfigurator {
                 )
                 let encoder = ABIEncoder()
                 try encoder.encode(function: functionEncoder, arguments: parameters)
-                self.configuration = TransactionConfiguration(
-                        gasPrice: self.calculatedGasPrice,
+                configuration = TransactionConfiguration(
+                        gasPrice: calculatedGasPrice,
                         gasLimit: GasLimitConfiguration.maxGasLimit,
                         data: encoder.data
                 )
@@ -227,9 +239,6 @@ class TransactionConfigurator {
             }
         case .ERC875TokenOrder(let token):
             do {
-                if gasLimitNotSet {
-                    estimateGasLimit()
-                }
                 let parameters: [Any] = [
                     transaction.expiry!,
                     transaction.indices!.map({ BigUInt($0) }),
@@ -252,8 +261,8 @@ class TransactionConfigurator {
                 ])
                 let encoder = ABIEncoder()
                 try encoder.encode(function: functionEncoder, arguments: parameters)
-                self.configuration = TransactionConfiguration(
-                        gasPrice: self.calculatedGasPrice,
+                configuration = TransactionConfiguration(
+                        gasPrice: calculatedGasPrice,
                         gasLimit: GasLimitConfiguration.maxGasLimit,
                         data: encoder.data
                 )
@@ -263,9 +272,6 @@ class TransactionConfigurator {
             }
         case .ERC721Token(let token), .ERC721ForTicketToken(let token):
             do {
-                if gasLimitNotSet {
-                    estimateGasLimit()
-                }
                 let function: Function
                 let parameters: [Any]
                 if token.contractAddress.isLegacy721Contract {
@@ -277,8 +283,8 @@ class TransactionConfigurator {
                 }
                 let encoder = ABIEncoder()
                 try encoder.encode(function: function, arguments: parameters)
-                self.configuration = TransactionConfiguration(
-                        gasPrice: self.calculatedGasPrice,
+                configuration = TransactionConfiguration(
+                        gasPrice: calculatedGasPrice,
                         gasLimit: GasLimitConfiguration.maxGasLimit,
                         data: encoder.data
                 )
