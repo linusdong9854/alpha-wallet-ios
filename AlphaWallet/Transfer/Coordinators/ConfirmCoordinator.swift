@@ -21,7 +21,7 @@ class ConfirmCoordinator: Coordinator {
     weak var delegate: ConfirmCoordinatorDelegate?
 
     init(
-        navigationController: UINavigationController = NavigationController(),
+        navigationController: UINavigationController = UINavigationController(),
         session: WalletSession,
         configurator: TransactionConfigurator,
         keystore: Keystore,
@@ -37,12 +37,14 @@ class ConfirmCoordinator: Coordinator {
     }
 
     func start() {
-        let controller = ConfirmPaymentViewController(
+        let controller = TransactionConfirmationViewController(
             session: session,
             keystore: keystore,
             configurator: configurator,
-            confirmType: type
+            confirmType: type,
+            account: account
         )
+
         controller.didCompleted = { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
@@ -52,7 +54,7 @@ class ConfirmCoordinator: Coordinator {
                 strongSelf.navigationController.displayError(error: error)
             }
         }
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
+        controller.navigationItem.leftBarButtonItem = UIBarButtonItem.cancelBarButton(self, selector: #selector(dismiss))
 
         navigationController.viewControllers = [controller]
     }

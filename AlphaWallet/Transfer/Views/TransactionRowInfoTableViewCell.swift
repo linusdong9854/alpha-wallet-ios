@@ -1,0 +1,60 @@
+//
+//  TransactionRowInfoTableViewCell.swift
+//  AlphaWallet
+//
+//  Created by Vladyslav Shepitko on 17.07.2020.
+//
+
+import UIKit
+
+class TransactionRowInfoTableViewCell: UITableViewCell {
+
+    private let titleLabel: UILabel = {
+        let titleLabel = UILabel(frame: .zero)
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.font = Fonts.regular(size: ScreenChecker().isNarrowScreen ? 16 : 18)
+        titleLabel.textAlignment = .left
+        titleLabel.textColor = Colors.darkGray
+
+        return titleLabel
+    }()
+
+    private let subTitleLabel: UILabel = {
+        let subTitleLabel = UILabel(frame: .zero)
+        subTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        subTitleLabel.textAlignment = .left
+        subTitleLabel.textColor = Colors.black
+        subTitleLabel.font = Fonts.light(size: ScreenChecker().isNarrowScreen ? 13 : 15)
+        subTitleLabel.numberOfLines = 0
+
+        return subTitleLabel
+    }()
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+
+        let stackView = [
+            titleLabel,
+            subTitleLabel,
+        ].asStackView(axis: .vertical)
+
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.isLayoutMarginsRelativeArrangement = true
+
+        contentView.addSubview(stackView)
+
+        NSLayoutConstraint.activate([
+            stackView.anchorsConstraint(to: contentView, edgeInsets: Screen.TransactionConfirmation.transactionRowInfoInsets),
+        ])
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        return nil
+    }
+
+    func configure(viewModel: TransactionRowInfoTableViewCellViewModel) {
+        titleLabel.text = viewModel.title
+        subTitleLabel.text = viewModel.subTitle
+    }
+}
+

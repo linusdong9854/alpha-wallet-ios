@@ -135,11 +135,12 @@ extension SendCoordinator: SendViewControllerDelegate {
             account: account,
             transaction: transaction
         )
-        let controller = ConfirmPaymentViewController(
+        let controller = TransactionConfirmationViewController(
             session: session,
             keystore: keystore,
             configurator: configurator,
-            confirmType: .signThenSend
+            confirmType: .signThenSend,
+            account: account
         )
         controller.didCompleted = { [weak self] result in
             guard let strongSelf = self else { return }
@@ -150,8 +151,9 @@ extension SendCoordinator: SendViewControllerDelegate {
                 strongSelf.navigationController.displayError(error: error)
             }
         }
-        controller.navigationItem.largeTitleDisplayMode = .never
-        navigationController.pushViewController(controller, animated: true)
+
+        let controllerRR = ConfirmPaymantTransitionController(sourceViewController: navigationController, destinationViewController: controller)
+        controllerRR.start()
     }
 
     func lookup(contract: AlphaWallet.Address, in viewController: SendViewController, completion: @escaping (ContractData) -> Void) {

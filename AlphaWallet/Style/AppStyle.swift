@@ -231,4 +231,12 @@ enum Screen {
             static let blockChainTagHeight = CGFloat(20)
         }
     }
+
+    enum TransactionConfirmation {
+        static var transactionRowInfoInsets: UIEdgeInsets {
+            let leftRightInset: CGFloat = ScreenChecker().isNarrowScreen ? 10 : 24
+            let topBottomInset: CGFloat = ScreenChecker().isNarrowScreen ? 5 : 8
+            return .init(top: topBottomInset, left: leftRightInset, bottom: topBottomInset, right: leftRightInset)
+        }
+    }
 }
