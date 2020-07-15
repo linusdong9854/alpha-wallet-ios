@@ -449,3 +449,9 @@
 "wallet.security.level.green" = "100% SECURE";
 "settings.general.title" = "General";
 "wallets.showSeedPhrase.subtitle.error" = "No comparta su copia de seguridad. Los miembros del equipo AlphaWallet no lo pedirán.";
+"qrCode.myqrCode.title" = "My QR Code";
+"qrCode.sendToAddress.title" = "Send to this Address";
+"qrCode.watchWallet.title" = "Watch Wallet";
+"qrCode.addCustomToken.title" = "Add Custom Token";
+"qrCode.openInBrowser.title" = "Open in Browser";
+"assets.selectAsset.title" = "Select Asset";

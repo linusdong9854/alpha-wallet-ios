@@ -449,3 +449,9 @@
 "wallet.security.level.orange" = "NOT LOCKED";
 "wallet.security.level.green" = "100% SECURE";
 "settings.general.title" = "一般";
+"qrCode.myqrCode.title" = "My QR Code";
+"qrCode.sendToAddress.title" = "Send to this Address";
+"qrCode.watchWallet.title" = "Watch Wallet";
+"qrCode.addCustomToken.title" = "Add Custom Token";
+"qrCode.openInBrowser.title" = "Open in Browser";
+"assets.selectAsset.title" = "Select Asset";

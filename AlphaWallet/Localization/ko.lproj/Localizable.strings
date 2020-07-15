@@ -449,3 +449,9 @@
 "wallet.security.level.green" = "100% SECURE";
 "settings.general.title" = "일반";
 "wallets.showSeedPhrase.subtitle.error" = "백업을 공유하지 마십시오. AlphaWallet 팀원은 요청하지 않습니다.";
+"qrCode.myqrCode.title" = "My QR Code";
+"qrCode.sendToAddress.title" = "Send to this Address";
+"qrCode.watchWallet.title" = "Watch Wallet";
+"qrCode.addCustomToken.title" = "Add Custom Token";
+"qrCode.openInBrowser.title" = "Open in Browser";
+"assets.selectAsset.title" = "Select Asset";

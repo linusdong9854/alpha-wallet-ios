@@ -35,7 +35,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     private let keystoreJSONTextView = TextView()
     private let passwordTextField = TextField()
     private let privateKeyTextView = TextView()
-    private let watchAddressTextField = AddressTextField()
+    let watchAddressTextField = AddressTextField()
     private var mnemonicControlsStackView: UIStackView!
     private var keystoreJSONControlsStackView: UIStackView!
     private var privateKeyControlsStackView: UIStackView!
