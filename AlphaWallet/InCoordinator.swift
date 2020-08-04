@@ -641,6 +641,27 @@ class InCoordinator: NSObject, Coordinator {
         }
     }
 
+    func show(openURLResult result: OpenURLResult) {
+        switch result {
+        case .failure(let error):
+            show(error: error)
+        case .succesfull:
+            let alertController = UIAlertController(title: nil, message: result.message, preferredStyle: .alert)
+            alertController.popoverPresentationController?.sourceView = presentationViewController.view
+            alertController.addAction(.init(title: R.string.localizable.oK(), style: .default))
+
+            presentationViewController.present(alertController, animated: true)
+        }
+    }
+
+    private var presentationViewController: UIViewController {
+        if let controller = navigationController.presentedViewController {
+            return controller
+        } else {
+            return navigationController
+        }
+    }
+
     func listOfBadTokenScriptFilesChanged(fileNames: [TokenScriptFileIndices.FileName]) {
         tokensCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: fileNames)
     }

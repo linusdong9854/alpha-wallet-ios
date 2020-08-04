@@ -6,12 +6,50 @@ import UIKit
 protocol AssetDefinitionStoreCoordinatorDelegate: class {
     func show(error: Error, for viewController: AssetDefinitionStoreCoordinator)
     func addedTokenScript(forContract contract: AlphaWallet.Address, forServer server: RPCServer)
+    func didHandleOpenURL(in coordinator: AssetDefinitionStoreCoordinator, with result: OpenURLResult)
 }
 
 struct SchemaCheckError: LocalizedError {
     var msg: String
     var errorDescription: String? {
         return msg
+    }
+}
+
+enum OpenURLError: Error {
+    case unsupportedTokenScriptVersion
+    case copyTokenScriptURL(_ url: URL, _ destinationURL: URL, error: Error)
+
+    var localizedDescription: String {
+        switch self {
+        case .unsupportedTokenScriptVersion:
+            return R.string.localizable.tokenScriptNotSupportedSchemaError()
+        case .copyTokenScriptURL(let url, let destinationFileName, let error):
+            return "Error moving asset definition file from \(url.path) to: \(destinationFileName.path): \(error)"
+        }
+    }
+}
+
+enum OpenURLResult {
+    case failure(OpenURLError)
+    case succesfull(file: String)
+
+    var message: String {
+        switch self {
+        case .succesfull(let filename):
+            return "\(filename) file imported with no error"
+        case .failure(let error):
+            return error.localizedDescription
+        }
+    }
+
+    var isHandled: Bool {
+        switch self {
+        case .succesfull:
+            return true
+        case .failure:
+            return false
+        }
     }
 }
 
@@ -128,7 +166,8 @@ class AssetDefinitionStoreCoordinator: Coordinator {
             isTokenScriptOrXml = true
         case .unsupportedTokenScriptVersion:
             try? FileManager.default.removeItem(at: url)
-            delegate?.show(error: SchemaCheckError(msg: R.string.localizable.tokenScriptNotSupportedSchemaError()), for: self)
+            delegate?.didHandleOpenURL(in: self, with: .failure(OpenURLError.unsupportedTokenScriptVersion))
+
             return true
         case .unknownXml:
             try? FileManager.default.removeItem(at: url)
@@ -139,6 +178,8 @@ class AssetDefinitionStoreCoordinator: Coordinator {
 
         let filename = url.lastPathComponent
         let destinationFileName = overridesDirectory.appendingPathComponent(filename)
+        let destinationFileInUse = overrides?.contains(destinationFileName) ?? false
+
         do {
             try? FileManager.default.removeItem(at: destinationFileName )
             try FileManager.default.moveItem(at: url, to: destinationFileName )
@@ -149,13 +190,19 @@ class AssetDefinitionStoreCoordinator: Coordinator {
                         delegate?.addedTokenScript(forContract: contract, forServer: server)
                     }
                 }
+
+                if !destinationFileInUse {
+                    delegate?.didHandleOpenURL(in: self, with: .succesfull(file: filename))
+                }
+
                 return true
             }
         } catch {
-            NSLog("Error moving asset definition file from \(url.path) to: \(destinationFileName.path): \(error)")
+            delegate?.didHandleOpenURL(in: self, with: .failure(.copyTokenScriptURL(url, destinationFileName, error: error)))
         }
+
         return false
-    }
+    } 
 
     private func watchDirectoryContents(changeHandler: @escaping () -> Void) {
         guard directoryWatcher == nil else { return }

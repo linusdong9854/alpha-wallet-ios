@@ -357,6 +357,11 @@ extension AppCoordinator: CustomUrlSchemeCoordinatorDelegate {
 }
 
 extension AppCoordinator: AssetDefinitionStoreCoordinatorDelegate {
+
+    func didHandleOpenURL(in coordinator: AssetDefinitionStoreCoordinator, with result: OpenURLResult) {
+        inCoordinator?.show(openURLResult: result)
+    }
+
     func show(error: Error, for viewController: AssetDefinitionStoreCoordinator) {
         inCoordinator?.show(error: error)
     }
